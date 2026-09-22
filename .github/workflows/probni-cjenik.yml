@@ -1,0 +1,30 @@
+
+name: Probni cjenik proizvoda
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generiraj:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Preuzmi datoteke
+        uses: actions/checkout@v4
+
+      - name: Izradi probni CSV
+        env:
+          SHOPIFY_SHOP_DOMAIN: ${{ secrets.SHOPIFY_SHOP_DOMAIN }}
+          SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
+        run: python scripts/generiraj_cjenik.py
+
+      - name: Spremi probni CSV za preuzimanje
+        uses: actions/upload-artifact@v4
+        with:
+          name: probni-cjenik
+          path: probni-cjenik.csv
+          if-no-files-found: error
