@@ -112,13 +112,16 @@ jobs:
           print("Aktivnih proizvoda:", len(active))
 
           
+            
+          for product in active:
+              variants = product["variants"]["nodes"]
+
               metafield = product.get("metafield")
               sidrena_cijena = (
                   metafield["value"]
                   if metafield is not None
                   else "NIJE PRONADENA"
               )
-              print("Sidrena cijena:", sidrena_cijena)
 
               if variants:
                   variant = variants[0]
@@ -126,6 +129,7 @@ jobs:
                   print(
                       product["title"],
                       "| SKU:", variant["sku"],
-                      "| Cijena:", variant["price"]
+                      "| Cijena:", variant["price"],
+                      "| Sidrena cijena:", sidrena_cijena
                   )
           PY
