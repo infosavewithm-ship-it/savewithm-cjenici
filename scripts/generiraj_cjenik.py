@@ -167,7 +167,7 @@ def ucitaj_predlozak():
         "Šifra proizvoda",
         "Naziv proizvoda",
         "Aktualna cijena (EUR)",
-        "Dodatna cijena (EUR)",
+        "Sidrena cijena (EUR)",
     }
 
     if not obavezni.issubset(set(stupci)):
@@ -243,8 +243,8 @@ def main():
 
         redak["Naziv proizvoda"] = podaci["naziv"]
         redak["Aktualna cijena (EUR)"] = podaci["cijena"]
-        redak["Dodatna cijena (EUR)"] = podaci["sidrena"]
-
+        redak["Sidrena cijena (EUR)"] = podaci["sidrena"]
+        
         if "Cijena za jedinicu mjere (EUR)" in redak:
             redak["Cijena za jedinicu mjere (EUR)"] = (
                 podaci["cijena"]
