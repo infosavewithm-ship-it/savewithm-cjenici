@@ -1,0 +1,117 @@
+
+name: Test Shopify povezivanja
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-shopify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Provjeri Shopify povezivanje
+        env:
+          SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
+          SHOPIFY_SHOP_DOMAIN: ${{ secrets.SHOPIFY_SHOP_DOMAIN }}
+
+        run: |
+          python3 - <<'PY'
+          import os
+          import json
+          import urllib.request
+          import urllib.parse
+          import urllib.error
+
+          shop = os.environ["SHOPIFY_SHOP_DOMAIN"].strip()
+          client_id = os.environ["SHOPIFY_CLIENT_ID"]
+          client_secret = os.environ["SHOPIFY_CLIENT_SECRET"]
+
+          # Dohvati pristupni token
+          token_url = f"https://{shop}/admin/oauth/access_token"
+
+          payload = urllib.parse.urlencode({
+              "grant_type": "client_credentials",
+              "client_id": client_id,
+              "client_secret": client_secret
+          }).encode("utf-8")
+
+          request = urllib.request.Request(
+              token_url,
+              data=payload,
+              headers={
+                  "Content-Type":
+                  "application/x-www-form-urlencoded"
+              },
+              method="POST"
+          )
+
+          with urllib.request.urlopen(request, timeout=30) as response:
+              token_data = json.load(response)
+
+          access_token = token_data["access_token"]
+
+          # Procitaj osnovne podatke o proizvodima
+          api_url = f"https://{shop}/admin/api/2026-07/graphql.json"
+
+          query = """
+          {
+            products(first: 50) {
+              nodes {
+                title
+                status
+                variants(first: 10) {
+                  nodes {
+                    sku
+                    price
+                  }
+                }
+              }
+            }
+          }
+          """
+
+          api_request = urllib.request.Request(
+              api_url,
+              data=json.dumps({"query": query}).encode("utf-8"),
+              headers={
+                  "Content-Type": "application/json",
+                  "X-Shopify-Access-Token": access_token
+              },
+              method="POST"
+          )
+
+          with urllib.request.urlopen(api_request, timeout=30) as response:
+              result = json.load(response)
+
+          if result.get("errors"):
+              raise RuntimeError(
+                  "Shopify API vratio je pogresku: "
+                  + str(result["errors"])
+              )
+
+          products = result["data"]["products"]["nodes"]
+          active = [
+              product for product in products
+              if product["status"] == "ACTIVE"
+          ]
+
+          print("SHOPIFY POVEZIVANJE USPJESNO")
+          print("Ukupno dohvacenih proizvoda:", len(products))
+          print("Aktivnih proizvoda:", len(active))
+
+          for product in active:
+              variants = product["variants"]["nodes"]
+
+              if variants:
+                  variant = variants[0]
+
+                  print(
+                      product["title"],
+                      "| SKU:", variant["sku"],
+                      "| Cijena:", variant["price"]
+                  )
+          PY
