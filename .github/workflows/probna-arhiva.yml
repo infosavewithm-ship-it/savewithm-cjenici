@@ -1,0 +1,36 @@
+
+name: Probna izrada arhive
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  provjera:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Preuzmi datoteke
+        uses: actions/checkout@v4
+
+      - name: Generiraj probni cjenik
+        env:
+          SHOPIFY_SHOP_DOMAIN: ${{ secrets.SHOPIFY_SHOP_DOMAIN }}
+          SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
+        run: python scripts/generiraj_cjenik.py
+
+      - name: Pripremi aktualni cjenik i arhivu
+        run: python scripts/objavi_cjenik.py
+
+      - name: Spremi datoteke za provjeru
+        uses: actions/upload-artifact@v4
+        with:
+          name: probna-arhiva
+          path: |
+            aktualni-cjenik.csv
+            arhiva.json
+            arhiva/*.csv
+          if-no-files-found: error
