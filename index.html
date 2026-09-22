@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Save with M – Cjenici i arhiva</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 850px;
+      margin: 50px auto;
+      padding: 20px;
+      color: #333;
+      line-height: 1.6;
+    }
+    h1, h2 { color: #222; }
+    a { color: #333; }
+    .box {
+      background: #f7f7f7;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+    }
+    .note { color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <h1>Save with M – Cjenici</h1>
+
+  <div class="box">
+    <h2>Aktualni cjenik proizvoda</h2>
+    <p>
+      <a href="aktualni-cjenik.csv">
+        Preuzmi aktualni cjenik proizvoda (CSV)
+      </a>
+    </p>
+    <p class="note">
+      Cjenik se automatski ažurira.
+    </p>
+  </div>
+
+  <div class="box">
+    <h2>Cjenik usluga</h2>
+    <p>
+      <a href="cjenik-usluga.csv">
+        Preuzmi cjenik usluga (CSV)
+      </a>
+    </p>
+  </div>
+
+  <h2>Arhiva cjenika proizvoda</h2>
+
+  <div id="arhiva">
+    <p>Arhiva će biti dostupna nakon prve automatske objave.</p>
+  </div>
+
+  <script>
+    fetch("arhiva.json")
+      .then(response => response.json())
+      .then(datoteke => {
+        const arhiva = document.getElementById("arhiva");
+        arhiva.innerHTML = "";
+
+        datoteke.forEach(datoteka => {
+          const p = document.createElement("p");
+          const a = document.createElement("a");
+
+          a.href = datoteka.url;
+          a.textContent = datoteka.naziv;
+
+          p.appendChild(a);
+          arhiva.appendChild(p);
+        });
+      })
+      .catch(() => {
+        document.getElementById("arhiva").textContent =
+          "Arhiva trenutačno nije dostupna.";
+      });
+  </script>
+
+</body>
+</html>
