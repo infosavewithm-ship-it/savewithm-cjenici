@@ -13,7 +13,7 @@ MAPA_ARHIVE = Path("arhiva")
 POPIS_ARHIVE = Path("arhiva.json")
 
 # Stalni dio naziva preuzet je iz dosadasnjeg cjenika.
-PREFIKS = "WEB_CVRSNICKA37_OSIJEK_SWM"
+PREFIKS = "WEB_CVRSNICKA37_OSIJEK_SWM_001"
 
 
 def provjeri_probni_cjenik():
